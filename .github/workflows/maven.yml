@@ -43,6 +43,15 @@ jobs:
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/JavaOdevAnahtarBilgi.pem
           chmod 600 ~/.ssh/JavaOdevAnahtarBilgi.pem
 
+      - name: Host var mı test
+        run: |
+          if [ -z "${{ secrets.EC2_HOST }}" ]; then
+            echo "EC2_HOST BOS"
+            exit 1
+          else
+            echo "EC2_HOST OK"
+          fi
+          
       # 📁 EC2'DЕ HEDEF KLASÖRÜ OLUŞTUR
       - name: EC2 üzerinde app klasörü oluştur
         uses: appleboy/ssh-action@v1.0.3
