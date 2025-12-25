@@ -33,43 +33,44 @@ jobs:
           java-version: '17'
           cache: maven
 
-      - name: Maven ile Build ve Test
+      - name: Maven Build
         run: mvn -B clean package
 
-      # 🔐 SSH KEY DOSYAYA YAZ (KRİTİK ADIM)
-      - name: SSH key dosyasını oluştur
+      # 🔐 SSH KEY DOSYAYA YAZ
+      - name: SSH key oluştur
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/JavaOdevAnahtarBilgi.pem
-          chmod 600 ~/.ssh/JavaOdevAnahtarBilgi.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
 
-      - name: Host var mı test
+      # 🧪 EC2_HOST GERÇEKTEN GELİYOR MU?
+      - name: EC2_HOST kontrol
         run: |
           if [ -z "${{ secrets.EC2_HOST }}" ]; then
-            echo "EC2_HOST BOS"
+            echo "❌ EC2_HOST BOS"
             exit 1
           else
-            echo "EC2_HOST OK"
+            echo "✅ EC2_HOST OK: ${{ secrets.EC2_HOST }}"
           fi
-          
-      # 📁 EC2'DЕ HEDEF KLASÖRÜ OLUŞTUR
+
+      # 📁 EC2'DЕ KLASÖR OLUŞTUR
       - name: EC2 üzerinde app klasörü oluştur
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
+          key_path: ~/.ssh/ec2_key.pem
           port: 22
           script: |
             mkdir -p /home/ubuntu/app
 
-      # 📦 JAR DOSYASINI EC2'YE KOPYALA
+      # 📦 JAR DOSYASINI EC2'YE GÖNDER
       - name: JAR Dosyasını EC2'ye Gönder
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
+          key_path: ~/.ssh/ec2_key.pem
           port: 22
           source: "target/*.jar"
           target: "/home/ubuntu/app"
@@ -80,7 +81,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
+          key_path: ~/.ssh/ec2_key.pem
           port: 22
           script: |
             cd /home/ubuntu/app
