@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="tr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Teknoloji Sitesi - Canlı Sohbet</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+
+<nav class="navbar navbar-dark navbar-expand-lg" style="background: #020617;">
+  <div class="container py-2">
+    <a class="navbar-brand fw-semibold" href="/anasayfa">
+      <span class="text-info">Teknoloji</span> Sitesi
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="/anasayfa">Anasayfa</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom" href="/urunler">Ürünler</a></li>
+        <li class="nav-item"><a class="nav-link nav-link-custom active" href="/sohbet">Canlı Sohbet</a></li>
+		<li class="nav-item">
+		  <a class="nav-link nav-link-custom" href="/magazalar/harita">Mağazalar (Harita)</a>
+		</li>
+		<li class="nav-item">
+		  <a class="nav-link nav-link-custom" href="/magazalar">Mağaza Listesi</a>
+		</li>
+
+      </ul>
+	  
+      <div class="d-flex align-items-center gap-2">
+        <span sec:authorize="isAnonymous()">
+          <a class="btn btn-outline-light btn-sm" href="/giris">Giriş Yap</a>
+          <a class="btn btn-info btn-sm" href="/kaydol">Kayıt Ol</a>
+        </span>
+        <span sec:authorize="isAuthenticated()" class="d-flex align-items-center gap-2">
+          <span class="text-light small">Hoşgeldin, <span sec:authentication="name"></span></span>
+          <a class="btn btn-success btn-sm" href="/admin/siparisler" sec:authorize="hasRole('ADMIN')">Admin Paneli</a>
+          <a class="btn btn-info btn-sm" href="/urunler/yeni" sec:authorize="hasRole('ADMIN')">Ürün Ekle</a>
+		  <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+		    <a class="nav-link" href="/admin/magazalar">Mağaza Yönetimi</a>
+		  </li>
+
+		  <a class="btn btn-danger btn-sm" href="/cikis">Çıkış</a>
+        </span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container py-4 py-lg-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+
+      <div class="card shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>Canlı Sohbet</span>
+          <span class="badge bg-info text-dark small">Anlık destek</span>
+        </div>
+
+        <div class="card-body" style="height: 400px; overflow-y: auto;" id="mesajlar">
+          <!-- JS ile mesaj satırları buraya eklenecek -->
+        </div>
+
+        <div class="card-footer">
+          <div class="input-group">
+            <input id="mesajInput" type="text" class="form-control"
+                   placeholder="Mesajınızı yazın..." onkeypress="if(event.key==='Enter'){gonder();}">
+            <button class="btn btn-info" type="button" onclick="gonder()">Gönder</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
+
+<script th:inline="javascript">
+    let stompClient = null;
+
+    // Login olmuş kullanıcının adı
+    const kullaniciAdi = /*[[${#authentication.name}]]*/ 'Ziyaretçi';
+
+    function baglan() {
+        const socket = new SockJS('/ws-sohbet');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Bağlandı: ' + frame);
+            stompClient.subscribe('/topic/sohbet', function (mesaj) {
+                const body = JSON.parse(mesaj.body);
+                mesajGoster(body);
+            });
+        }, function (error) {
+            console.error('Bağlantı hatası', error);
+        });
+    }
+
+    function gonder() {
+        if (!stompClient || !stompClient.connected) {
+            return;
+        }
+        const input = document.getElementById('mesajInput');
+        const icerik = input.value.trim();
+        if (!icerik) return;
+
+        const mesaj = {
+            gonderen: kullaniciAdi,
+            icerik: icerik
+        };
+
+        stompClient.send('/app/sohbet.gonder', {}, JSON.stringify(mesaj));
+        input.value = '';
+    }
+
+    function mesajGoster(mesaj) {
+        const liste = document.getElementById('mesajlar');
+        const div = document.createElement('div');
+        div.className = 'mb-2';
+
+        const zaman = mesaj.zaman ? ' <span class="text-muted small">(' + mesaj.zaman + ')</span>' : '';
+
+        div.innerHTML = '<strong>' + mesaj.gonderen + ':</strong> ' +
+                        mesaj.icerik + zaman;
+
+        liste.appendChild(div);
+        liste.scrollTop = liste.scrollHeight;
+    }
+
+    window.addEventListener('load', baglan);
+</script>
+
+</body>
+</html>

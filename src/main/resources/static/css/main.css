@@ -1,0 +1,135 @@
+/* ANA TEMA */
+body {
+  background-color: #0f172a;  /* KOYU ARKAPLAN */
+  color: #e5e7eb;            /* AÇIK YAZI RENGİ */
+  margin: 0;
+}
+
+/* NAVBAR */
+.nav-link-custom {
+  color: #e5e7eb;
+  opacity: .75;
+}
+.nav-link-custom:hover {
+  opacity: 1;
+  color: #38bdf8;
+}
+
+/* HERO */
+.hero {
+  background: radial-gradient(circle at top left, #38bdf8, #0f172a);
+  border-radius: 2rem;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  background: rgba(56, 189, 248, 0.15);
+  filter: blur(40px);
+  top: -60px;
+  right: -60px;
+  border-radius: 999px;
+}
+.hero-badge {
+  font-size: .8rem;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #a5b4fc;
+}
+.hero-title {
+  font-size: clamp(2rem, 3vw + 1rem, 3.2rem);
+  font-weight: 700;
+}
+.hero-subtitle {
+  color: #cbd5f5;
+  max-width: 32rem;
+}
+
+/* GENEL KARTLAR */
+.glass-card {
+  background: rgba(15,23,42,0.9);
+  border-radius: 1.5rem;
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  box-shadow: 0 20px 45px rgba(15,23,42,0.8);
+}
+.section-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+/* KATEGORİ / ROZETLER */
+.category-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15,23,42,0.9);
+  border: 1px solid rgba(148,163,184,0.3);
+  font-size: 1.4rem;
+}
+.pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  background: rgba(15,23,42,0.7);
+  border: 1px solid rgba(148,163,184,0.35);
+  font-size: .8rem;
+  color: #e5e7eb;
+}
+.badge-soft {
+  background: rgba(56,189,248,0.08);
+  border: 1px solid rgba(56,189,248,0.35);
+  color: #e0f2fe;
+}
+
+/* ÜRÜN KARTLARI */
+.product-card {
+  background: #020617; /* kart zeminini koyu yap */
+  border-radius: 1rem;
+  border: 1px solid rgba(148,163,184,0.3);
+  overflow: hidden;
+  transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: #38bdf8;
+  box-shadow: 0 20px 40px rgba(8,47,73,0.9);
+}
+.product-image-placeholder {
+  height: 180px;
+  background: linear-gradient(135deg, #1d4ed8, #06b6d4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e5e7eb;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: .75rem;
+}
+
+/* FOOTER */
+.footer {
+  border-top: 1px solid rgba(148,163,184,0.3);
+  color: #9ca3af;
+  font-size: .85rem;
+}
+
+/* TABLO / KÜÇÜK YAZILAR */
+.small.text-secondary {
+  color: #9ca3af !important;
+}
+.table {
+  color: #e5e7eb;
+}
+.table thead tr {
+  color: #9ca3af;
+}
+.table tbody tr {
+  border-color: rgba(148,163,184,0.25);
+}
