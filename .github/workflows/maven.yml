@@ -40,7 +40,7 @@ jobs:
       - name: SSH key dosyasını oluştur
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/JavaOdevAnahtarBilgi.pem
           chmod 600 ~/.ssh/JavaOdevAnahtarBilgi.pem
 
       # 📁 EC2'DЕ HEDEF KLASÖRÜ OLUŞTUR
