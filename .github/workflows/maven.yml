@@ -16,40 +16,65 @@ jobs:
           MYSQL_ROOT_PASSWORD: 1234
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
 
     steps:
       - name: Kodu Çek
         uses: actions/checkout@v4
 
-      - name: JDK Kurulumu
+      - name: JDK 17 Kurulumu
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: temurin
           java-version: '17'
           cache: maven
 
-      - name: Maven ile Derle ve Test Et
+      - name: Maven ile Build ve Test
         run: mvn -B clean package
 
+      # 🔐 SSH KEY DOSYAYA YAZ (KRİTİK ADIM)
+      - name: SSH key dosyasını oluştur
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/ec2_key.pem
+
+      # 📁 EC2'DЕ HEDEF KLASÖRÜ OLUŞTUR
+      - name: EC2 üzerinde app klasörü oluştur
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key_path: ~/.ssh/ec2_key.pem
+          port: 22
+          script: |
+            mkdir -p /home/ubuntu/app
+
+      # 📦 JAR DOSYASINI EC2'YE KOPYALA
       - name: JAR Dosyasını EC2'ye Gönder
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ~/.ssh/ec2_key.pem
+          port: 22
           source: "target/*.jar"
           target: "/home/ubuntu/app"
-          strip_components: 1
 
-      - name: Sunucuda Uygulamayı Başlat
+      # 🚀 UYGULAMAYI BAŞLAT
+      - name: EC2 üzerinde uygulamayı başlat
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ~/.ssh/ec2_key.pem
+          port: 22
           script: |
-            mkdir -p /home/ubuntu/app
-            sudo fuser -k 8095/tcp || true
             cd /home/ubuntu/app
-            nohup java -jar *.jar > app.log 2>&1 &
+            sudo fuser -k 8095/tcp || true
+            JAR=$(ls *.jar | head -n 1)
+            nohup java -jar $JAR > app.log 2>&1 &
