@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key.pem
-          chmod 600 ~/.ssh/ec2_key.pem
+          chmod 600 ~/.ssh/JavaOdevAnahtarBilgi.pem
 
       # 📁 EC2'DЕ HEDEF KLASÖRÜ OLUŞTUR
       - name: EC2 üzerinde app klasörü oluştur
@@ -49,7 +49,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/ec2_key.pem
+          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
           port: 22
           script: |
             mkdir -p /home/ubuntu/app
@@ -60,7 +60,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/ec2_key.pem
+          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
           port: 22
           source: "target/*.jar"
           target: "/home/ubuntu/app"
@@ -71,7 +71,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: ~/.ssh/ec2_key.pem
+          key_path: ~/.ssh/JavaOdevAnahtarBilgi.pem
           port: 22
           script: |
             cd /home/ubuntu/app
