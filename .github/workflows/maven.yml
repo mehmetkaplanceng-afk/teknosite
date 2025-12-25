@@ -37,25 +37,13 @@ jobs:
       - name: Maven Build
         run: mvn -B clean package
 
-      # 🔐 SSH KEY DOSYAYA YAZ (ABSOLUTE PATH KULLANILACAK)
-      - name: SSH key oluştur
-        run: |
-          mkdir -p /home/runner/.ssh
-          echo "${{ secrets.EC2_SSH_KEY }}" > /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
-          chmod 600 /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
-
-      # 🧪 KEY DOSYASI VAR MI?
-      - name: SSH key kontrol
-        run: |
-          ls -l /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
-
       # 📁 EC2'DЕ KLASÖR OLUŞTUR
       - name: EC2 üzerinde app klasörü oluştur
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
             mkdir -p /home/ubuntu/app
@@ -66,7 +54,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           source: "target/*.jar"
           target: "/home/ubuntu/app"
@@ -77,7 +65,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
-          key_path: /home/runner/.ssh/JavaOdevAnahtarBilgi.pem
+          key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
             cd /home/ubuntu/app
